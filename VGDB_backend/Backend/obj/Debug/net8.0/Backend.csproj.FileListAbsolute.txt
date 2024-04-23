@@ -143,3 +143,4 @@ C:\Users\qsabr\Downloads\Databases\Video_Game_Database\VGDB_backend\Backend\obj\
 C:\Users\qsabr\Downloads\Databases\Video_Game_Database\VGDB_backend\Backend\obj\Debug\net8.0\Backend.pdb
 C:\Users\qsabr\Downloads\Databases\Video_Game_Database\VGDB_backend\Backend\obj\Debug\net8.0\Backend.genruntimeconfig.cache
 C:\Users\qsabr\Downloads\Databases\Video_Game_Database\VGDB_backend\Backend\obj\Debug\net8.0\ref\Backend.dll
+C:\Users\qsabr\Downloads\Databases\Video_Game_Database\VGDB_backend\Backend\obj\Debug\net8.0\Backend.sourcelink.json
