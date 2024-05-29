@@ -1,177 +1,171 @@
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore; // Add this line
+using Microsoft.EntityFrameworkCore;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
-using VideoGameDatabase.Data; // Make sure this matches your ApplicationDbContext namespace
-using System.Linq; // Add this line if it's not already there
+using VideoGameDatabase.Data;
+using VideoGameDatabase.Models;
 
-// ... rest of your controller code ...
-
-
-[ApiController]
-[Route("api/[controller]")]
-public class GamesController : ControllerBase
+namespace VideoGameDatabase.Controllers
 {
-    private readonly ApplicationDbContext _context;
-
-    public GamesController(ApplicationDbContext context)
+    [ApiController]
+    [Route("api/[controller]")]
+    public class GamesController : ControllerBase
     {
-        _context = context;
-    }
+        private readonly ApplicationDbContext _context;
 
-    // GET: api/Games
-    [HttpGet]
-    public async Task<ActionResult<IEnumerable<Game>>> GetGames()
-    {
-        return await _context.Games
-            .Include(g => g.Developer)
-            .Include(g => g.Publisher)
-            .ToListAsync();
-    }
-
-    // POST: api/Games
-    [HttpPost]
-    public async Task<ActionResult<Game>> PostGame(Game game)
-    {
-        _context.Games.Add(game);
-        await _context.SaveChangesAsync();
-
-        return CreatedAtAction("GetGame", new { id = game.GameID }, game);
-    }
-    // GET: api/Games/5
-[HttpGet("{id}")]
-public async Task<ActionResult<Game>> GetGame(int id)
-{
-    var game = await _context.Games
-        .Include(g => g.Developer)
-        .Include(g => g.Publisher)
-        .FirstOrDefaultAsync(g => g.GameID == id);
-
-    if (game == null)
-    {
-        return NotFound();
-    }
-    return game;
-}
-
-// PUT: api/Games/5
-[HttpPut("{id}")]
-public async Task<IActionResult> PutGame(int id, Game gameUpdateRequest)
-{
-    if (id != gameUpdateRequest.GameID)
-    {
-        return BadRequest("Game ID mismatch.");
-    }
-
-    if (!ModelState.IsValid)
-    {
-        return BadRequest(ModelState);
-    }
-
-    var game = await _context.Games
-                             .Include(g => g.Developer)
-                             .Include(g => g.Publisher)
-                             .FirstOrDefaultAsync(g => g.GameID == id);
-
-    if (game == null)
-    {
-        return NotFound();
-    }
-
-    // Update the properties of game
-    _context.Entry(game).CurrentValues.SetValues(gameUpdateRequest);
-
-    // Handle Developer update or addition
-    if (gameUpdateRequest.Developer != null)
-    {
-        if (gameUpdateRequest.Developer.DeveloperID.HasValue)
+        public GamesController(ApplicationDbContext context)
         {
-            // Update existing Developer
-            var developer = await _context.Developers.FirstOrDefaultAsync(d => d.DeveloperID == gameUpdateRequest.Developer.DeveloperID.Value);
-            if (developer != null)
+            _context = context;
+        }
+
+        // GET: api/Games
+        [HttpGet]
+        public async Task<ActionResult<IEnumerable<Game>>> GetGames()
+        {
+            return await _context.Games
+                .Include(g => g.Developer)
+                .Include(g => g.Publisher)
+                .Include(g => g.GameReviews)
+                .ThenInclude(gr => gr.Reviewer)
+                .ToListAsync();
+        }
+
+        // POST: api/Games
+        [HttpPost]
+        public async Task<ActionResult<Game>> PostGame(Game game)
+        {
+            _context.Games.Add(game);
+            await _context.SaveChangesAsync();
+
+            return CreatedAtAction("GetGame", new { id = game.GameID }, game);
+        }
+
+        // GET: api/Games/5
+        [HttpGet("{id}")]
+        public async Task<ActionResult<Game>> GetGame(int id)
+        {
+            var game = await _context.Games
+                .Include(g => g.Developer)
+                .Include(g => g.Publisher)
+                .Include(g => g.GameReviews)
+                .ThenInclude(gr => gr.Reviewer)
+                .FirstOrDefaultAsync(g => g.GameID == id);
+
+            if (game == null)
             {
-                _context.Entry(developer).CurrentValues.SetValues(gameUpdateRequest.Developer);
+                return NotFound();
+            }
+
+            return game;
+        }
+
+        // PUT: api/Games/5
+        [HttpPut("{id}")]
+        public async Task<IActionResult> PutGame(int id, Game gameUpdateRequest)
+        {
+            if (id != gameUpdateRequest.GameID)
+            {
+                return BadRequest("Game ID mismatch.");
+            }
+
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            var game = await _context.Games
+                                     .Include(g => g.Developer)
+                                     .Include(g => g.Publisher)
+                                     .FirstOrDefaultAsync(g => g.GameID == id);
+
+            if (game == null)
+            {
+                return NotFound();
+            }
+
+            _context.Entry(game).CurrentValues.SetValues(gameUpdateRequest);
+
+            if (gameUpdateRequest.Developer != null)
+            {
+                if (gameUpdateRequest.Developer.DeveloperID != 0)
+                {
+                    var developer = await _context.Developers.FirstOrDefaultAsync(d => d.DeveloperID == gameUpdateRequest.Developer.DeveloperID);
+                    if (developer != null)
+                    {
+                        _context.Entry(developer).CurrentValues.SetValues(gameUpdateRequest.Developer);
+                    }
+                }
+                else
+                {
+                    _context.Developers.Add(gameUpdateRequest.Developer);
+                    game.Developer = gameUpdateRequest.Developer;
+                }
+            }
+
+            if (gameUpdateRequest.Publisher != null)
+            {
+                if (gameUpdateRequest.Publisher.PublisherID != 0)
+                {
+                    var publisher = await _context.Publishers.FirstOrDefaultAsync(p => p.PublisherID == gameUpdateRequest.Publisher.PublisherID);
+                    if (publisher != null)
+                    {
+                        _context.Entry(publisher).CurrentValues.SetValues(gameUpdateRequest.Publisher);
+                    }
+                }
+                else
+                {
+                    _context.Publishers.Add(gameUpdateRequest.Publisher);
+                    game.Publisher = gameUpdateRequest.Publisher;
+                }
+            }
+
+            try
+            {
+                await _context.SaveChangesAsync();
+                return Ok(game);
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                if (!GameExists(id))
+                {
+                    return NotFound();
+                }
+                else
+                {
+                    throw;
+                }
             }
         }
-        else
-        {
-            // Add new Developer
-            _context.Developers.Add(gameUpdateRequest.Developer);
-            // Assign the new Developer to the game
-            game.Developer = gameUpdateRequest.Developer;
-        }
-    }
 
-    // Handle Publisher update or addition
-    if (gameUpdateRequest.Publisher != null)
-    {
-        if (gameUpdateRequest.Publisher.PublisherID.HasValue)
+        // DELETE: api/Games/5
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteGame(int id)
         {
-            // Update existing Publisher
-            var publisher = await _context.Publishers.FirstOrDefaultAsync(p => p.PublisherID == gameUpdateRequest.Publisher.PublisherID.Value);
-            if (publisher != null)
+            var game = await _context.Games
+                                     .Include(g => g.GameReviews)
+                                     .ThenInclude(gr => gr.Reviewer)
+                                     .SingleOrDefaultAsync(g => g.GameID == id);
+            
+            if (game == null)
             {
-                _context.Entry(publisher).CurrentValues.SetValues(gameUpdateRequest.Publisher);
+                return NotFound();
             }
+
+            foreach (var review in game.GameReviews.ToList())
+            {
+                _context.GameReviews.Remove(review);
+            }
+
+            _context.Games.Remove(game);
+            await _context.SaveChangesAsync();
+
+            return NoContent();
         }
-        else
+
+        private bool GameExists(int id)
         {
-            // Add new Publisher
-            _context.Publishers.Add(gameUpdateRequest.Publisher);
-            // Assign the new Publisher to the game
-            game.Publisher = gameUpdateRequest.Publisher;
+            return _context.Games.Any(e => e.GameID == id);
         }
     }
-
-    try
-    {
-        await _context.SaveChangesAsync();
-        return Ok(game);
-    }
-    catch (DbUpdateConcurrencyException)
-    {
-        if (!GameExists(id))
-        {
-            return NotFound();
-        }
-        else
-        {
-            throw;
-        }
-    }
-}
-
-
-
-
-[HttpDelete("{id}")]
-public async Task<IActionResult> DeleteGame(int id)
-{
-    var game = await _context.Games
-                             .Include(g => g.GameReviews) // Include the related reviews
-                             .SingleOrDefaultAsync(g => g.GameID == id);
-    
-    if (game == null)
-    {
-        return NotFound();
-    }
-
-    // Remove the related reviews
-    foreach (var review in game.GameReviews.ToList())
-    {
-        _context.GameReviews.Remove(review);
-    }
-
-    // Now it's safe to remove the game
-    _context.Games.Remove(game);
-    await _context.SaveChangesAsync();
-
-    return NoContent();
-}
-
-
-private bool GameExists(int id)
-{
-    return _context.Games.Any(e => e.GameID == id);
-}
-
 }

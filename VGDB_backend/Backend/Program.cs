@@ -8,7 +8,11 @@ using Microsoft.Extensions.Configuration;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-builder.Services.AddControllers();
+builder.Services.AddControllers().AddJsonOptions(options =>
+{
+    options.JsonSerializerOptions.ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.IgnoreCycles;
+    options.JsonSerializerOptions.DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull;
+});
 
 // Configure CORS to allow any origin (for development purposes)
 builder.Services.AddCors(options =>
@@ -24,9 +28,7 @@ builder.Services.AddCors(options =>
 
 // Configure EF Core to use MySQL
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
-
     options.UseMySql(
-        
         builder.Configuration.GetConnectionString("DefaultConnection"),
         new MySqlServerVersion(new Version(8, 0, 21)),
         mySqlOptions => mySqlOptions

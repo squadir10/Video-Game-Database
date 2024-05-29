@@ -1,41 +1,24 @@
 using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
 
-public class Game
+namespace VideoGameDatabase.Models
 {
-    [Key]
-    public int GameID { get; set; } // Primary keys generally should not be nullable.
-
-    [Required]
-    [StringLength(255)]
-    public string? Title { get; set; } // Should not be nullable as it's required.
-
-    [Column(TypeName = "date")]
-    [DisplayFormat(ApplyFormatInEditMode = true, DataFormatString = "{0:yyyy-MM-dd}")]
-    public DateTime? ReleaseDate { get; set; } // Nullable if the release date can be unknown.
-
-    [StringLength(100)]
-    public string? Genre { get; set; } // Nullable if the genre can be unknown.
-
-    [StringLength(100)]
-    public string? Platform { get; set; } // Nullable if the platform can be unknown.
-
-    // Foreign keys should be nullable if the relationship is optional.
-    [ForeignKey("Developer")]
-    public int? DeveloperID { get; set; }
-    
-
-    [ForeignKey("Publisher")]
-    public int? PublisherID { get; set; }
-
-    // Navigation properties should be nullable if the relationship is optional.
-    public Game()
+    public class Game
     {
-        GameReviews = new HashSet<GameReview>();
+        public int GameID { get; set; }
+        [Required]
+        public string Title { get; set; } = string.Empty;
+        [Required]
+        public DateTime ReleaseDate { get; set; }
+        [Required]
+        public string Genre { get; set; } = string.Empty;
+        [Required]
+        public string Platform { get; set; } = string.Empty;
+        [Required]
+        public Developer Developer { get; set; } = new Developer();
+        [Required]
+        public Publisher Publisher { get; set; } = new Publisher();
+        public List<GameReview> GameReviews { get; set; } = new List<GameReview>();
     }
-    public Developer? Developer { get; set; }
-    public Publisher? Publisher { get; set; }
-
-    public virtual ICollection<GameReview> GameReviews { get; set; }
 }

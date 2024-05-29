@@ -1,20 +1,15 @@
-using System;
 using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
 
-public class Developer
+namespace VideoGameDatabase.Models
 {
-    [Key]
-    public int? DeveloperID { get; set; }
-
-    [Required]
-    [StringLength(255)]
-    public string? Name { get; set; }
-
-    [StringLength(255)]
-    public string? Location { get; set; }  // Made nullable
-
-    [Column(TypeName = "date")]
-    [DisplayFormat(ApplyFormatInEditMode = true, DataFormatString = "{0:yyyy-MM-dd}")]
-    public DateTime? FoundingDate { get; set; }
+    public class Developer
+    {
+        public int DeveloperID { get; set; }
+        [Required]
+        public string Name { get; set; } = string.Empty;
+        [Required]
+        public string Location { get; set; } = string.Empty;
+        [Required]
+        public DateTime FoundingDate { get; set; }
+    }
 }
