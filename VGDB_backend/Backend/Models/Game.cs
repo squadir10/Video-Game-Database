@@ -7,18 +7,25 @@ namespace VideoGameDatabase.Models
     public class Game
     {
         public int GameID { get; set; }
+        
         [Required]
-        public string Title { get; set; } = string.Empty;
+        public required string Title { get; set; }
+        
         [Required]
-        public DateTime ReleaseDate { get; set; }
+        public required DateTime ReleaseDate { get; set; }
+        
         [Required]
-        public string Genre { get; set; } = string.Empty;
+        public required string Genre { get; set; }
+        
         [Required]
-        public string Platform { get; set; } = string.Empty;
+        public required string Platform { get; set; }
+        
         [Required]
-        public Developer Developer { get; set; } = new Developer();
+        public required Developer Developer { get; set; } = new Developer();
+        
         [Required]
-        public Publisher Publisher { get; set; } = new Publisher();
+        public required Publisher Publisher { get; set; } = new Publisher();
+        
         public List<GameReview> GameReviews { get; set; } = new List<GameReview>();
     }
 }

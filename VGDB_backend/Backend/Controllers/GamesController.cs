@@ -35,6 +35,36 @@ namespace VideoGameDatabase.Controllers
         [HttpPost]
         public async Task<ActionResult<Game>> PostGame(Game game)
         {
+            if (game.Developer.DeveloperID == 0)
+            {
+                _context.Developers.Add(game.Developer);
+            }
+            else
+            {
+                _context.Entry(game.Developer).State = EntityState.Unchanged;
+            }
+
+            if (game.Publisher.PublisherID == 0)
+            {
+                _context.Publishers.Add(game.Publisher);
+            }
+            else
+            {
+                _context.Entry(game.Publisher).State = EntityState.Unchanged;
+            }
+
+            foreach (var review in game.GameReviews)
+            {
+                if (review.Reviewer.ReviewerID == 0)
+                {
+                    _context.Reviewers.Add(review.Reviewer);
+                }
+                else
+                {
+                    _context.Entry(review.Reviewer).State = EntityState.Unchanged;
+                }
+            }
+
             _context.Games.Add(game);
             await _context.SaveChangesAsync();
 
