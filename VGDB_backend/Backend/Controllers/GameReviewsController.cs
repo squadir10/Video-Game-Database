@@ -114,6 +114,22 @@ namespace VideoGameDatabase.Controllers
             }
         }
 
+        [HttpGet("Scores")]
+public IActionResult GetScores()
+{
+    var scores = _context.GameReviews
+        .GroupBy(gr => gr.GameID)
+        .Select(g => new
+        {
+            GameID = g.Key,
+            Score = g.Average(gr => gr.Score) // or any other logic to calculate the score
+        })
+        .ToList();
+        
+    return Ok(scores);
+}
+
+
         // DELETE: api/GameReviews/5
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteGameReview(int id)
