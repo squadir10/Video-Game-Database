@@ -122,7 +122,7 @@ const GameModify = ({ game, onSave, onCancel }) => {
 
       <span style={{ marginBottom: "25px" }}>
         <div className="form-actions">
-          <button type="submit" style={{ backgroundColor: "green", color: "white" }}>Save</button>
+          <button type="submit" style={{ backgroundColor: "green", color: "white" }}>Save and Submit</button>
           <button type="button" onClick={onCancel} style={{ backgroundColor: "gray", color: "white" }}>Cancel</button>
         </div>
       </span>

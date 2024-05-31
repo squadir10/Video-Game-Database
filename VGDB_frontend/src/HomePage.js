@@ -34,7 +34,7 @@ const HomePage = () => {
   }, []);
 
   const handleAddGameClick = () => {
-    // handle add game logic
+    navigate('/add-game');
   };
 
   const handleViewMoreClick = (gameId) => {
