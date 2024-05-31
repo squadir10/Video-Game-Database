@@ -90,83 +90,122 @@ namespace VideoGameDatabase.Controllers
             return game;
         }
 
-        // PUT: api/Games/5
-        [HttpPut("{id}")]
-        public async Task<IActionResult> PutGame(int id, Game gameUpdateRequest)
+   [HttpPut("{id}")]
+public async Task<IActionResult> PutGame(int id, Game gameUpdateRequest)
+{
+    if (id != gameUpdateRequest.GameID)
+    {
+        return BadRequest("Game ID mismatch.");
+    }
+
+    if (!ModelState.IsValid)
+    {
+        return BadRequest(ModelState);
+    }
+
+    var game = await _context.Games
+                             .Include(g => g.Developer)
+                             .Include(g => g.Publisher)
+                             .Include(g => g.GameReviews)
+                             .ThenInclude(gr => gr.Reviewer)
+                             .FirstOrDefaultAsync(g => g.GameID == id);
+
+    if (game == null)
+    {
+        return NotFound();
+    }
+
+    // Update game details
+    _context.Entry(game).CurrentValues.SetValues(gameUpdateRequest);
+
+    // Update developer
+    if (gameUpdateRequest.Developer != null)
+    {
+        if (gameUpdateRequest.Developer.DeveloperID != 0)
         {
-            if (id != gameUpdateRequest.GameID)
-            {
-                return BadRequest("Game ID mismatch.");
-            }
-
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
-
-            var game = await _context.Games
-                                     .Include(g => g.Developer)
-                                     .Include(g => g.Publisher)
-                                     .FirstOrDefaultAsync(g => g.GameID == id);
-
-            if (game == null)
-            {
-                return NotFound();
-            }
-
-            _context.Entry(game).CurrentValues.SetValues(gameUpdateRequest);
-
-            if (gameUpdateRequest.Developer != null)
-            {
-                if (gameUpdateRequest.Developer.DeveloperID != 0)
-                {
-                    var developer = await _context.Developers.FirstOrDefaultAsync(d => d.DeveloperID == gameUpdateRequest.Developer.DeveloperID);
-                    if (developer != null)
-                    {
-                        _context.Entry(developer).CurrentValues.SetValues(gameUpdateRequest.Developer);
-                    }
-                }
-                else
-                {
-                    _context.Developers.Add(gameUpdateRequest.Developer);
-                    game.Developer = gameUpdateRequest.Developer;
-                }
-            }
-
-            if (gameUpdateRequest.Publisher != null)
-            {
-                if (gameUpdateRequest.Publisher.PublisherID != 0)
-                {
-                    var publisher = await _context.Publishers.FirstOrDefaultAsync(p => p.PublisherID == gameUpdateRequest.Publisher.PublisherID);
-                    if (publisher != null)
-                    {
-                        _context.Entry(publisher).CurrentValues.SetValues(gameUpdateRequest.Publisher);
-                    }
-                }
-                else
-                {
-                    _context.Publishers.Add(gameUpdateRequest.Publisher);
-                    game.Publisher = gameUpdateRequest.Publisher;
-                }
-            }
-
-            try
-            {
-                await _context.SaveChangesAsync();
-                return Ok(game);
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!GameExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
-            }
+            _context.Entry(game.Developer).CurrentValues.SetValues(gameUpdateRequest.Developer);
         }
+        else
+        {
+            game.Developer = gameUpdateRequest.Developer;
+            _context.Developers.Add(gameUpdateRequest.Developer);
+        }
+    }
+
+    // Update publisher
+    if (gameUpdateRequest.Publisher != null)
+    {
+        if (gameUpdateRequest.Publisher.PublisherID != 0)
+        {
+            _context.Entry(game.Publisher).CurrentValues.SetValues(gameUpdateRequest.Publisher);
+        }
+        else
+        {
+            game.Publisher = gameUpdateRequest.Publisher;
+            _context.Publishers.Add(gameUpdateRequest.Publisher);
+        }
+    }
+
+    // Update reviews
+    foreach (var review in game.GameReviews.ToList())
+    {
+        _context.GameReviews.Remove(review);
+    }
+    game.GameReviews.Clear();
+
+    foreach (var reviewUpdate in gameUpdateRequest.GameReviews)
+    {
+        var reviewer = await _context.Reviewers.FindAsync(reviewUpdate.Reviewer.ReviewerID);
+        if (reviewer == null)
+        {
+            reviewer = new Reviewer
+            {
+                Name = reviewUpdate.Reviewer.Name,
+                Affiliation = reviewUpdate.Reviewer.Affiliation,
+                ExperienceYears = reviewUpdate.Reviewer.ExperienceYears
+            };
+            _context.Reviewers.Add(reviewer);
+        }
+        else
+        {
+            reviewer.Name = reviewUpdate.Reviewer.Name;
+            reviewer.Affiliation = reviewUpdate.Reviewer.Affiliation;
+            reviewer.ExperienceYears = reviewUpdate.Reviewer.ExperienceYears;
+            _context.Entry(reviewer).State = EntityState.Modified;
+        }
+
+        var newReview = new GameReview
+        {
+            GameID = game.GameID,
+            ReviewerID = reviewer.ReviewerID,
+            Score = reviewUpdate.Score,
+            ReviewText = reviewUpdate.ReviewText,
+            ReviewDate = reviewUpdate.ReviewDate,
+            Reviewer = reviewer
+        };
+        game.GameReviews.Add(newReview);
+    }
+
+    try
+    {
+        await _context.SaveChangesAsync();
+        return Ok(game);
+    }
+    catch (DbUpdateConcurrencyException)
+    {
+        if (!GameExists(id))
+        {
+            return NotFound();
+        }
+        else
+        {
+            throw;
+        }
+    }
+}
+
+
+
 
         // DELETE: api/Games/5
         [HttpDelete("{id}")]

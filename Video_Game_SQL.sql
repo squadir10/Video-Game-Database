@@ -54,6 +54,7 @@ CREATE TABLE `GameReviews` (
   CONSTRAINT `FK_Reviewer` FOREIGN KEY (`ReviewerID`) REFERENCES `Reviewers` (`ReviewerID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
+
     
 INSERT INTO `Developers` (Name, Location, FoundingDate) VALUES
 ('Epic Games', 'Cary, North Carolina, USA', '1991-01-01'),

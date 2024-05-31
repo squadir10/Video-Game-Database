@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 
 // Utility to help with nested updates
 const setValue = (obj, path, value) => {
@@ -26,11 +26,41 @@ const GameModify = ({ game, onSave, onCancel }) => {
   const [editGame, setEditGame] = useState(() => ({
     ...game,
     releaseDate: game.releaseDate?.split("T")[0] || "",
-    developerFoundingDate: game.developer?.foundingDate?.split("T")[0] || "",
-    publisherFoundingDate: game.publisher?.foundingDate?.split("T")[0] || "",
-    reviewDate: game.review?.date?.split("T")[0] || "",
-    reviewer: { ...game.reviewer }, // Ensure this is a nested object
-    review: { ...game.review } // Ensure this is a nested object
+    developer: {
+      ...game.developer,
+      foundingDate: game.developer?.foundingDate?.split("T")[0] || "",
+      name: game.developer?.name || "",
+      location: game.developer?.location || "",
+    },
+    publisher: {
+      ...game.publisher,
+      foundingDate: game.publisher?.foundingDate?.split("T")[0] || "",
+      name: game.publisher?.name || "",
+      headquarters: game.publisher?.headquarters || "",
+    },
+    gameReviews: game.gameReviews?.length
+      ? game.gameReviews.map(review => ({
+          ...review,
+          reviewDate: review.reviewDate?.split("T")[0] || "",
+          score: review.score || "",
+          reviewText: review.reviewText || "",
+          reviewer: {
+            ...review.reviewer,
+            name: review.reviewer?.name || "",
+            affiliation: review.reviewer?.affiliation || "",
+          },
+        }))
+      : [
+          {
+            score: "",
+            reviewText: "",
+            reviewDate: "",
+            reviewer: {
+              name: "",
+              affiliation: "",
+            },
+          },
+        ],
   }));
 
   const handleChange = useCallback((e) => {
@@ -42,11 +72,29 @@ const GameModify = ({ game, onSave, onCancel }) => {
     });
   }, []);
 
-
   const handleSubmit = useCallback((e) => {
     e.preventDefault();
     onSave(editGame);
   }, [editGame, onSave]);
+
+  useEffect(() => {
+    if (game.gameReviews && game.gameReviews.length > 0) {
+      setEditGame(currentState => ({
+        ...currentState,
+        gameReviews: game.gameReviews.map(review => ({
+          ...review,
+          reviewDate: review.reviewDate?.split("T")[0] || "",
+          score: review.score || "",
+          reviewText: review.reviewText || "",
+          reviewer: {
+            ...review.reviewer,
+            name: review.reviewer?.name || "",
+            affiliation: review.reviewer?.affiliation || "",
+          },
+        })),
+      }));
+    }
+  }, [game]);
 
   return (
     <form onSubmit={handleSubmit} className="form-container">
@@ -55,17 +103,21 @@ const GameModify = ({ game, onSave, onCancel }) => {
         <FormField label="Release Date" type="date" name="releaseDate" value={editGame.releaseDate} onChange={handleChange} />
         <FormField label="Genre" name="genre" value={editGame.genre} onChange={handleChange} />
         <FormField label="Platform" name="platform" value={editGame.platform} onChange={handleChange} />
-        <FormField label="Developer Name" name="developer.Name" value={editGame.developer?.Name} onChange={handleChange} />
-        <FormField label="Developer Location" name="developer.location" value={editGame.developer?.location} onChange={handleChange} />
-        <FormField label="Developer Founding Date" type="date" name="developer.foundingDate" value={editGame.developer?.foundingDate} onChange={handleChange} />
-        <FormField label="Publisher Name" name="publisher.name" value={editGame.publisher?.name} onChange={handleChange} />
-        <FormField label="Publisher Headquarters" name="publisher.headquarters" value={editGame.publisher?.headquarters} onChange={handleChange} />
-        <FormField label="Publisher Founding Date" type="date" name="publisher.foundingDate" value={editGame.publisher?.foundingDate} onChange={handleChange} />
-        <FormField label="Review Score" type="number" name="review.score" value={editGame.review?.score} onChange={handleChange} />
-        <FormField label="Review Text" type="textarea" name="review.text" value={editGame.review?.text} onChange={handleChange} />
-        <FormField label="Review Date" type="date" name="review.date" value={editGame.review?.date} onChange={handleChange} />
-        <FormField label="Reviewer Name" name="reviewer.name" value={editGame.reviewer?.name} onChange={handleChange} />
-        <FormField label="Reviewer Affiliation" name="reviewer.affiliation" value={editGame.reviewer?.affiliation} onChange={handleChange} />
+        <FormField label="Developer Name" name="developer.name" value={editGame.developer.name} onChange={handleChange} />
+        <FormField label="Developer Location" name="developer.location" value={editGame.developer.location} onChange={handleChange} />
+        <FormField label="Developer Founding Date" type="date" name="developer.foundingDate" value={editGame.developer.foundingDate} onChange={handleChange} />
+        <FormField label="Publisher Name" name="publisher.name" value={editGame.publisher.name} onChange={handleChange} />
+        <FormField label="Publisher Headquarters" name="publisher.headquarters" value={editGame.publisher.headquarters} onChange={handleChange} />
+        <FormField label="Publisher Founding Date" type="date" name="publisher.foundingDate" value={editGame.publisher.foundingDate} onChange={handleChange} />
+        {editGame.gameReviews.map((review, index) => (
+          <div key={index}>
+            <FormField label="Review Score" type="number" name={`gameReviews.${index}.score`} value={review.score} onChange={handleChange} />
+            <FormField label="Review Text" type="textarea" name={`gameReviews.${index}.reviewText`} value={review.reviewText} onChange={handleChange} />
+            <FormField label="Review Date" type="date" name={`gameReviews.${index}.reviewDate`} value={review.reviewDate} onChange={handleChange} />
+            <FormField label="Reviewer Name" name={`gameReviews.${index}.reviewer.name`} value={review.reviewer.name} onChange={handleChange} />
+            <FormField label="Reviewer Affiliation" name={`gameReviews.${index}.reviewer.affiliation`} value={review.reviewer.affiliation} onChange={handleChange} />
+          </div>
+        ))}
       </span>
 
       <span style={{ marginBottom: "25px" }}>
