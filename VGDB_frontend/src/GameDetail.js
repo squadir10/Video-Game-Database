@@ -1,11 +1,28 @@
+/* 
+Name: Sabrina Quadir 
+Description: 
+The GameDetail.js file defines a React component for displaying detailed information about a specific video game in a web application. 
+This component fetches and renders comprehensive details about a selected game such as:
+-title
+-release date
+-genre
+-platform
+-developer
+-publisher
+-review
+-reviewer info
+
+It provides an intuitive interface for users to view all relevant information about a game plus the ability to edit the entry
+
+ */
+
 import React, { useState, useEffect } from "react";
-import "./Styles.css"; // Assuming your stylesheet is named 'styles.css'
-import { Container } from "react-bootstrap"; // Make sure react-bootstrap is installed
+import "./Styles.css"; 
+import { Container } from "react-bootstrap"; 
 import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
 import GameModify from "./GameModify";
 
-// ... rest of your code remains the same
 
 const GameDetail = () => {
   const navigate = useNavigate();
@@ -17,7 +34,9 @@ const GameDetail = () => {
     const fetchData = async () => {
       try {
         // Fetch game details including developer, publisher, and reviews
-        const response = await axios.get(`http://localhost:5021/api/Games/${gameId}`);
+        const response = await axios.get(
+          `http://localhost:5021/api/Games/${gameId}`
+        );
         if (response.data) {
           setGame(response.data);
         }
@@ -30,7 +49,7 @@ const GameDetail = () => {
   }, [gameId]);
 
   const handleBackClick = () => {
-    navigate("/"); // Assuming your home route is '/'
+    navigate("/"); 
   };
 
   const handleModify = () => {
@@ -38,6 +57,7 @@ const GameDetail = () => {
   };
 
   const handleSave = async (updatedGame) => {
+    //lots of try and catch statements to view in browser console (I use Chrome)
     try {
       console.log("handleSave received:", updatedGame);
       if (!updatedGame || !updatedGame.gameID) {
@@ -47,7 +67,7 @@ const GameDetail = () => {
       const gameForSave = {
         ...updatedGame,
         developer: updatedGame.developer || game.developer,
-        publisher: updatedGame.publisher || game.publisher
+        publisher: updatedGame.publisher || game.publisher,
       };
 
       const response = await axios.put(
@@ -117,7 +137,9 @@ const GameDetail = () => {
       {!isEditMode && game && (
         <div>
           <div className="section">
-            <h1>{game.title}</h1>
+            <h1>
+              <u>{game.title}</u>
+            </h1>
             <p>
               <b>Release Date: </b>
               {new Date(game.releaseDate).toLocaleDateString()}
@@ -133,7 +155,9 @@ const GameDetail = () => {
           </div>
 
           <div className="section">
-            <h2>Developer:</h2>
+            <h2>
+              <u>Developer:</u>
+            </h2>
             <p>
               <b>Name: </b>
               {game.developer.name}
@@ -149,7 +173,9 @@ const GameDetail = () => {
           </div>
 
           <div className="section">
-            <h2>Publisher:</h2>
+            <h2>
+              <u>Publisher:</u>
+            </h2>
             <p>
               <b>Name: </b>
               {game.publisher.name}
@@ -166,7 +192,9 @@ const GameDetail = () => {
 
           {game.gameReviews && game.gameReviews.length > 0 && (
             <div className="section">
-              <h2>Review:</h2>
+              <h2>
+                <u>Review:</u>
+              </h2>
               {game.gameReviews.map((review) => (
                 <div key={review.gameReviewID}>
                   <p>
@@ -182,7 +210,9 @@ const GameDetail = () => {
                     {new Date(review.reviewDate).toLocaleDateString()}
                   </p>
                   <div className="section">
-                    <h2>Reviewer:</h2>
+                    <h2>
+                      <u>Reviewer</u>:
+                    </h2>
                     <p>
                       <b>Name: </b>
                       {review.reviewer.name}

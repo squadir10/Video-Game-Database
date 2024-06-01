@@ -1,9 +1,6 @@
-using Microsoft.AspNetCore.Builder;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
 using Microsoft.EntityFrameworkCore;
 using VideoGameDatabase.Data;
-using Microsoft.Extensions.Configuration;
+
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -20,7 +17,7 @@ builder.Services.AddCors(options =>
     options.AddDefaultPolicy(
         policyBuilder =>
         {
-            policyBuilder.WithOrigins("http://localhost:3000") // Replace with the actual port your React app is running on
+            policyBuilder.WithOrigins("http://localhost:3000") //not 5021
                          .AllowAnyHeader()
                          .AllowAnyMethod();
         });

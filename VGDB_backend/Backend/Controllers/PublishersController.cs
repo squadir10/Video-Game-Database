@@ -1,8 +1,24 @@
+/* 
+Name: Sabrina Quadir 
+Description: 
+The PublishersController.cs file is a controller in an ASP.NET Core web application that handles HTTP requests related to game publishers. 
+It defines endpoints for performing CRUD operations on the Publisher entity. 
+
+This controller enables users to view and manage publisher-related data such as:
+-names 
+-headquarters 
+-locations
+-founding dates. 
+
+Typical actions include:
+-publisher details
+-adding new publishers
+-updating existing publisher information
+-deleting publishers from the database.
+ */
+
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using VideoGameDatabase.Data;
 using VideoGameDatabase.Models;
 

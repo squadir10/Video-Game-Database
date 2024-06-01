@@ -1,8 +1,23 @@
+/* 
+Name: Sabrina Quadir 
+Description: 
+The Developers.cs file is a C# class definition that is part of an 
+Entity Framework Core data model in a .NET application. 
+This file represents a video game developer in the application's database.
+
+DeveloperID: A unique identifier for the developer.
+Name: The name of the developer.
+Location: The location or headquarters of the developer.
+FoundingDate: The date when the developer was founded.
+These properties are mapped to columns in a database table, allowing the application to perform CRUD
+
+The Developers.cs file facilitates the application to interact with the database and manage developer-related information efficiently.
+
+ */
+
+
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using VideoGameDatabase.Data;
 using VideoGameDatabase.Models;
 

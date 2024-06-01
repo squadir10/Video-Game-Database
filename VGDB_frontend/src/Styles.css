@@ -49,3 +49,10 @@
   margin-top: 20px; /* Space above the buttons */
 }
 
+.banner-box {
+  background-color: #ffdab9;
+  padding: 20px;
+  margin: 20px auto;
+  width: 50%;
+}
+

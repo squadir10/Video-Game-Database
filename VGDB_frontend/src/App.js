@@ -1,9 +1,10 @@
-import React from 'react';
-import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
-import HomePage from './HomePage';  // Ensure the correct path
-import AddGame from './AddGame';    // Ensure the correct path
-import GameDetail from './GameDetail';  // Ensure the correct path
+import React from "react";
+import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
+import HomePage from "./HomePage"; 
+import AddGame from "./AddGame"; 
+import GameDetail from "./GameDetail"; 
 
+// layout of the website and its pages
 const App = () => (
   <Router>
     <Routes>

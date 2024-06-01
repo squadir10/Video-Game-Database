@@ -1,8 +1,20 @@
+/* 
+Name: Sabrina Quadir 
+Description: 
+The GameReviewsController.cs file is a controller in an ASP.NET Core web application 
+that handles HTTP requests related to game reviews. It defines endpoints for performing 
+CRUD operations on game reviews. 
+
+The controller interacts with the GameReview entity in the database, enabling 
+users to manage reviews associated with different games. 
+
+
+ */
+
+
+
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using VideoGameDatabase.Data;
 using VideoGameDatabase.Models;
 
@@ -115,19 +127,19 @@ namespace VideoGameDatabase.Controllers
         }
 
         [HttpGet("Scores")]
-public IActionResult GetScores()
-{
-    var scores = _context.GameReviews
-        .GroupBy(gr => gr.GameID)
-        .Select(g => new
+        public IActionResult GetScores()
         {
-            GameID = g.Key,
-            Score = g.Average(gr => gr.Score) // or any other logic to calculate the score
-        })
-        .ToList();
-        
-    return Ok(scores);
-}
+            var scores = _context.GameReviews
+                .GroupBy(gr => gr.GameID)
+                .Select(g => new
+                {
+                    GameID = g.Key,
+                    Score = g.Average(gr => gr.Score) // or any other logic to calculate the score
+                })
+                .ToList();
+
+            return Ok(scores);
+        }
 
 
         // DELETE: api/GameReviews/5

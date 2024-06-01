@@ -1,8 +1,18 @@
+/* 
+Name: Sabrina Quadir 
+Description: 
+The ReviewersController.cs file is a controller in an ASP.NET Core web application that handles HTTP requests related to game reviewers. 
+It defines endpoints for performing CRUD operations on the Reviewer entity. 
+
+This controller allows users to manage and view reviewer-related data such as:
+-names
+-affiliations
+-years of expereince 
+
+ */
+
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using VideoGameDatabase.Data;
 using VideoGameDatabase.Models;
 
